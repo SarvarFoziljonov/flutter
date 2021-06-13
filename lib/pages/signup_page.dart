@@ -63,6 +63,7 @@ class _SignupPageState extends State<SignupPage> {
                       ),
                     ),
                   ),
+                  SizedBox(height: 10,),
                   // email
                   Container(
                     padding: EdgeInsets.all(10),
