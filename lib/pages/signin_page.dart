@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_instaclone/pages/home_page.dart';
 import 'package:flutter_instaclone/pages/signup_page.dart';
 class SigninPage extends StatefulWidget {
   static final String id = "signin_page";
@@ -10,6 +11,10 @@ class _SigninPageState extends State<SigninPage> {
 
   _callSignUpPage () {
     Navigator.pushReplacementNamed(context, SignupPage.id);
+  }
+
+  _callHomPage() {
+    Navigator.pushReplacementNamed(context, HomePage.id);
   }
 
   var emailController = TextEditingController();
@@ -87,7 +92,9 @@ class _SigninPageState extends State<SigninPage> {
                   SizedBox(height: 10,),
                   //signin button
                   GestureDetector(
-                    onTap: (){},
+                    onTap: (){
+                      _callHomPage();
+                    },
                     child: Container(
                         height: 50,
                         width: double.infinity,
