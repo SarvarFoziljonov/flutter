@@ -3,6 +3,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 class MyUploadPage extends StatefulWidget {
+  PageController pageController2;
+  MyUploadPage ({this.pageController2});
+
   @override
   _MyUploadPageState createState() => _MyUploadPageState();
 }
@@ -77,6 +80,9 @@ class _MyUploadPageState extends State<MyUploadPage> {
         title: Text("Upload", style: TextStyle(color: Colors.black, fontSize: 25, fontFamily: 'Billabong'),),
         actions: [
           IconButton(
+            onPressed: (){
+              widget.pageController2.animateToPage(0, duration: Duration(milliseconds: 200), curve: Curves.easeIn);
+            },
             icon: Icon(Icons.post_add, color: Color.fromRGBO(252, 175, 69, 1),),
           )
         ],
