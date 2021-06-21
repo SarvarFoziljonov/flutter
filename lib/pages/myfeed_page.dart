@@ -12,16 +12,20 @@ class MyFeedPage extends StatefulWidget {
 
 class _MyFeedPageState extends State<MyFeedPage> {
   List <Post> items = new List ();
-  String post_image1 = "https://firebasestorage.googleapis.com/v0/b/koreanguideway.appspot.com/o/develop%2Fpost.png?alt=media&token=f0b1ba56-4bf4-4df2-9f43-6b8665cdc964";
-  String post_image2 = "https://firebasestorage.googleapis.com/v0/b/koreanguideway.appspot.com/o/develop%2Fpost2.png?alt=media&token=ac0c131a-4e9e-40c0-a75a-88e586b28b72";
-
+  String post_image1 = "https://i.postimg.cc/Nf5CG97m/photo-1.jpg";
+  String post_image2 = "https://i.postimg.cc/tJSX3ZYF/2.jpg";
+  String post_image3 = "https://i.postimg.cc/K8NyB3wj/3.jpg";
+  String post_image4 = "https://i.postimg.cc/SKJtRXpw/4.jpg";
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    items.add(Post(postImage: post_image1, caption: "Discover more great images"));
-    items.add(Post(postImage: post_image2, caption: "City images"));
+    items.add(Post(postImage: post_image1, caption: "Discover more useful informations "));
+    items.add(Post(postImage: post_image2, caption: "Macbook the best laptop"));
+    items.add(Post(postImage: post_image3, caption: "Work hard, rich big results"));
+    items.add(Post(postImage: post_image4, caption: "High technology our future"));
+
   }
 
   @override
