@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_instaclone/pages/signin_page.dart';
+
+import 'home_page.dart';
 class SplashPage extends StatefulWidget {
   static final String id = "splash_page";
   @override
@@ -11,11 +13,11 @@ class SplashPage extends StatefulWidget {
 class _SplashPageState extends State<SplashPage> {
   _initTimer () {
     Timer(Duration (seconds: 2), () {
-      _callSignInPage ();
+      _callHomePage ();
       });
   }
-  _callSignInPage () {
-  Navigator.pushReplacementNamed(context, SigninPage.id);
+  _callHomePage () {
+  Navigator.pushReplacementNamed(context, HomePage.id);
   }
   @override
   void initState() {

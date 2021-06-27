@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_instaclone/model/post_model.dart';
+import 'package:flutter_instaclone/services/auth_service.dart';
 import 'package:image_picker/image_picker.dart';
 class MyProfilePage extends StatefulWidget {
   @override
@@ -95,6 +96,14 @@ class _MyProfilePageState extends State<MyProfilePage> {
        backgroundColor: Colors.white,
        title: Text("My Profile", style: TextStyle(color: Colors.black, fontFamily: 'Billabong', fontSize: 30),),
        elevation: 0,
+       actions: [
+         IconButton(
+           onPressed: (){
+             AuthService.signOutUser(context);
+           },
+           icon: Icon(Icons.exit_to_app_outlined, color: Colors.black),
+         ),
+       ],
       ),
       body: Container(
         width: double.infinity,
