@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_instaclone/model/user_model.dart';
+import 'package:flutter_instaclone/services/data_service.dart';
 class MySearchPage extends StatefulWidget {
   @override
   _MySearchPageState createState() => _MySearchPageState();
@@ -9,16 +10,30 @@ class MySearchPage extends StatefulWidget {
 class _MySearchPageState extends State<MySearchPage> {
   var searchcontroller = TextEditingController();
   List <User> items = new List();
+  bool isLoading = false;
+
+  void _apiSearchUsers(String keyword){
+    setState(() {
+      isLoading = true;
+    });
+    DataService.searchUsers(keyword).then((users) => {
+      _respSearchUsers(users),
+    });
+  }
+  void  _respSearchUsers(List<User> users){
+    setState(() {
+      items = users;
+      isLoading = false;
+    });
+  }
+
+
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    items.add(User(name: "Sarvarbek", email: "sarvarbek@gmail.com"));
-    items.add(User(name: "Sarvarbek", email: "sarvarbek@gmail.com"));
-    items.add(User(name: "Sarvarbek", email: "sarvarbek@gmail.com"));
-    items.add(User(name: "Sarvarbek", email: "sarvarbek@gmail.com"));
-    items.add(User(name: "Sarvarbek", email: "sarvarbek@gmail.com"));
-    items.add(User(name: "Sarvarbek", email: "sarvarbek@gmail.com"));
+    _apiSearchUsers("");
   }
 
 
@@ -31,41 +46,53 @@ class _MySearchPageState extends State<MySearchPage> {
         title: Text("Search", style: TextStyle(color: Colors.black, fontFamily: 'Billabong', fontSize: 30),),
         elevation: 0,
       ),
-      body: Container(
-        padding: EdgeInsets.only(right: 10, left: 10 ),
-        child: Column(
-          children: [
-            Container(
-              padding: EdgeInsets.only(left: 10, right: 10),
-              margin: EdgeInsets.only(bottom: 10),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: Colors.grey, width: 1,
+      body: Stack(
+        children: [
+          Container(
+            padding: EdgeInsets.only(right: 10, left: 10 ),
+            child: Column(
+              children: [
+                Container(
+                  padding: EdgeInsets.only(left: 10, right: 10),
+                  margin: EdgeInsets.only(bottom: 10),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: Colors.grey, width: 1,
+                    ),
+                  ),
+                  height: 40,
+                  child: TextField(
+                    controller: searchcontroller,
+                    onChanged: (input) {
+                      print (input);
+                      _apiSearchUsers (input);
+                    },
+                    decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: "Search",
+                        icon: Icon(Icons.search, color: Colors.grey),
+                        hintStyle: TextStyle(color: Colors.grey,)
+                    ),
+                  ),
                 ),
-              ),
-              height: 40,
-              child: TextField(
-                controller: searchcontroller,
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                  hintText: "Search",
-                  icon: Icon(Icons.search, color: Colors.grey),
-                  hintStyle: TextStyle(color: Colors.grey,)
+                Expanded(
+                    child: ListView.builder(
+                      itemCount: items.length,
+                      itemBuilder: (ctx, index){
+                        return _itemOfUsers(items [index]);
+                      },
+                    )
                 ),
-              ),
+              ],
             ),
-            Expanded(
-             child: ListView.builder(
-               itemCount: items.length,
-               itemBuilder: (ctx, index){
-                 return _itemOfUsers(items [index]);
-               },
-             )
-            ),
-          ],
-        ),
-      ),
+          ),
+          isLoading ?
+          Center(
+            child: CircularProgressIndicator(),
+          ): SizedBox.shrink(),
+        ],
+      )
     );
   }
   Widget _itemOfUsers (User user) {
@@ -86,12 +113,13 @@ class _MySearchPageState extends State<MySearchPage> {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(300.0),
-              child: Image(
+              child: user.img_url.isEmpty
+                ?Image(
                 image: AssetImage("assets/images/ic_avatar.png"),
                 height: 40,
                 width: 40,
                 fit: BoxFit.cover,
-              ),
+              ) : Image.network(user.img_url, width: 40, height: 40, fit: BoxFit.cover,),
             ),
           ),
           SizedBox(width: 10,),
@@ -100,7 +128,7 @@ class _MySearchPageState extends State<MySearchPage> {
             mainAxisAlignment: MainAxisAlignment.center,
            crossAxisAlignment: CrossAxisAlignment.start,
            children: [
-              Text(user.name, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),),
+              Text(user.fullname, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),),
               Text(user.email, style: TextStyle(color: Colors.black54), ),
            ],
           ),

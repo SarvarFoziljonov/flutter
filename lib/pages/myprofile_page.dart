@@ -4,7 +4,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_instaclone/model/post_model.dart';
+import 'package:flutter_instaclone/model/user_model.dart';
 import 'package:flutter_instaclone/services/auth_service.dart';
+import 'package:flutter_instaclone/services/data_service.dart';
+import 'package:flutter_instaclone/services/file_service.dart';
 import 'package:image_picker/image_picker.dart';
 class MyProfilePage extends StatefulWidget {
   @override
@@ -17,22 +20,9 @@ class _MyProfilePageState extends State<MyProfilePage> {
   String post_image2 = "https://i.postimg.cc/tJSX3ZYF/2.jpg";
   String post_image3 = "https://i.postimg.cc/K8NyB3wj/3.jpg";
   String post_image4 = "https://i.postimg.cc/SKJtRXpw/4.jpg";
-
-
   int axisCount = 1;
-
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    items.add(Post(postImage: post_image1, caption: "Discover more useful informations "));
-    items.add(Post(postImage: post_image2, caption: "Macbook the best laptop"));
-    items.add(Post(postImage: post_image3, caption: "Work hard, rich big results"));
-    items.add(Post(postImage: post_image4, caption: "High technology our future"));
-
-  }
-
+  String fullname = "", email = "", img_url;
+  bool isLoading = false;
 //  Beginning functions of choose photo from gallery // camera
   File _image;
 
@@ -44,6 +34,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
     setState(() {
       _image = image;
     });
+    _apiChangPhoto ();
   }
 
   _imgFromCamera() async {
@@ -54,6 +45,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
     setState(() {
       _image = image;
     });
+    _apiChangPhoto ();
   }
 
   void _showPicker(context) {
@@ -89,6 +81,52 @@ class _MyProfilePageState extends State<MyProfilePage> {
   }
   //  ^^^ Ending functions of choose photo from gallery // camera ^^^
 
+  void _apiLoadUser () {
+    setState(() {
+      isLoading = true;
+    });
+   DataService.loadUser().then((value) => {
+     _showUserInfo (value),
+   });
+  }
+
+  _showUserInfo (User user) {
+    setState(() {
+    isLoading = false;
+    this.fullname = user.fullname;
+    this.email = user.email;
+    this.img_url = user.img_url;
+    });
+  }
+
+  _apiChangPhoto () {
+    if (_image == null) return;
+    setState(() {
+      isLoading = true;
+    });
+    FileService.uploadUserImage(_image).then((downloadUrl) => {
+      _apiUpdateUser(downloadUrl),
+    });
+  }
+  void _apiUpdateUser(String downloadUrl) async {
+    User user = await DataService.loadUser();
+    user.img_url = downloadUrl;
+    await DataService.updateUser(user);
+    _apiLoadUser();
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    items.add(Post(postImage: post_image1, caption: "Discover more useful informations "));
+    items.add(Post(postImage: post_image2, caption: "Macbook the best laptop"));
+    items.add(Post(postImage: post_image3, caption: "Work hard, rich big results"));
+    items.add(Post(postImage: post_image4, caption: "High technology our future"));
+    _apiLoadUser();
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -105,160 +143,168 @@ class _MyProfilePageState extends State<MyProfilePage> {
          ),
        ],
       ),
-      body: Container(
-        width: double.infinity,
-       padding: EdgeInsets.all(10),
-       child: Column(
-         children: [
-           // user photo
-            GestureDetector(
-              onTap: () {
-                _showPicker(context);
-              },
-              child: Stack(
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(2),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(70),
-                        border: Border.all(
-                          width: 1,
-                          color: Color.fromRGBO(252, 175, 69, 1),
-                        )
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(300.0),
-                      child: _image == null
-                          ? Image(
-                        image: AssetImage("assets/images/ic_avatar.png"),
-                        height: 70,
-                        width: 70,
-                        fit: BoxFit.cover,
+      body: Stack(
+        children: [
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(10),
+            child: Column(
+              children: [
+                // user photo
+                GestureDetector(
+                  onTap: () {
+                    _showPicker(context);
+                  },
+                  child: Stack(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(70),
+                            border: Border.all(
+                              width: 1,
+                              color: Color.fromRGBO(252, 175, 69, 1),
+                            )
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(300.0),
+                          child: img_url == null || img_url.isEmpty
+                              ? Image(
+                            image: AssetImage("assets/images/ic_avatar.png"),
+                            height: 70,
+                            width: 70,
+                            fit: BoxFit.cover,
+                          )
+                              : Image.network(img_url, width: 70, height: 70, fit: BoxFit.cover,),
+                        ),
+                      ),
+                      Container(
+                        height: 80,
+                        width: 80,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Icon(Icons.add_circle, color: Colors.redAccent),
+                          ],
+                        ),
                       )
-                          : Image.file(_image, width: 70, height: 70, fit: BoxFit.cover,),
-                    ),
+                    ],
                   ),
-                  Container(
+                ),
+                SizedBox(height: 15,),
+                // name, email
+                Column(
+                  children: [
+                    Text(fullname.toUpperCase(), style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),),
+                    Text(email, style: TextStyle(color: Colors.black54, fontSize: 16),),
+                  ],
+                ),
+                SizedBox(height: 15,),
+                // counts
+                Container(
                     height: 80,
-                    width: 80,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Icon(Icons.add_circle, color: Colors.redAccent),
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            ),
-           SizedBox(height: 15,),
-           // name, email
-           Column(
-             children: [
-               Text("Sarvarbek".toUpperCase(), style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),),
-               Text("sarvarbek@gmail.com", style: TextStyle(color: Colors.black54, fontSize: 16),),
-             ],
-           ),
-           SizedBox(height: 15,),
-           // counts
-           Container(
-             height: 80,
-             child: Center(
-               child: Row(
-                 children: [
-                   Expanded(
-                     child: Center(
-                       child: Column(
-                         mainAxisAlignment: MainAxisAlignment.center,
-                         children: [
-                           Text("675", style: TextStyle(color: Colors.black, fontSize: 16),),
-                           Text("POST", style: TextStyle(color: Colors.grey, fontSize: 16)),
-                         ],
-                       ),
-                     )
-                   ),
-                   Container(
-                     width: 1,
-                     height: 20,
-                     color: Colors.grey.withOpacity(0.5),
-                     
-                   ),
-                   Expanded(
-                       child: Center(
-                         child: Column(
-                           mainAxisAlignment: MainAxisAlignment.center,
-                           children: [
-                             Text("4256", style: TextStyle(color: Colors.black, fontSize: 16),),
-                             Text("FOLLOWERS", style: TextStyle(color: Colors.grey, fontSize: 16)),
-                           ],
-                         ),
-                       )
-                   ),
-                   Container(
-                     width: 1,
-                     height: 20,
-                     color: Colors.grey.withOpacity(0.5),
+                    child: Center(
+                      child: Row(
+                        children: [
+                          Expanded(
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text("675", style: TextStyle(color: Colors.black, fontSize: 16),),
+                                    Text("POST", style: TextStyle(color: Colors.grey, fontSize: 16)),
+                                  ],
+                                ),
+                              )
+                          ),
+                          Container(
+                            width: 1,
+                            height: 20,
+                            color: Colors.grey.withOpacity(0.5),
 
-                   ),
-                   Expanded(
-                       child: Center(
-                         child: Column(
-                           mainAxisAlignment: MainAxisAlignment.center,
-                           children: [
-                             Text("850", style: TextStyle(color: Colors.black, fontSize: 16),),
-                             Text("FOLLOWING", style: TextStyle(color: Colors.grey, fontSize: 16)),
-                           ],
-                         ),
-                       )
-                   ),
-                 ],
-               ),
-             )
-           ),
-           SizedBox(height: 15,),
-           // view buttons
-           Row(
-             children: [
-               Expanded(
-                 child: Center(
-                   child: IconButton(
-                     onPressed: () {
-                       setState(() {
-                         axisCount = 1;
-                       });
-                     },
-                     icon: Icon(Icons.list_alt),
-                   ),
-                 ),
-               ),
-               Expanded(
-                 child: Center(
-                   child: IconButton(
-                     onPressed: () {
-                       setState(() {
-                         axisCount = 2;
-                       });
-                     },
-                     icon: Icon(Icons.grid_view),
-                   ),
-                 ),
-               ),
-             ],
-           ),
-           SizedBox(height: 10,),
-           // post photo and caption
-           Expanded(
-             child: GridView.builder(
-                  itemCount: items.length,
-                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: axisCount),
-                 itemBuilder: (ctx, index) {
-                    return _listOfPost (items[index]);
-                 }
-             ),
-           ),
-         ],
-       ),
+                          ),
+                          Expanded(
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text("4256", style: TextStyle(color: Colors.black, fontSize: 16),),
+                                    Text("FOLLOWERS", style: TextStyle(color: Colors.grey, fontSize: 16)),
+                                  ],
+                                ),
+                              )
+                          ),
+                          Container(
+                            width: 1,
+                            height: 20,
+                            color: Colors.grey.withOpacity(0.5),
+
+                          ),
+                          Expanded(
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text("850", style: TextStyle(color: Colors.black, fontSize: 16),),
+                                    Text("FOLLOWING", style: TextStyle(color: Colors.grey, fontSize: 16)),
+                                  ],
+                                ),
+                              )
+                          ),
+                        ],
+                      ),
+                    )
+                ),
+                SizedBox(height: 15,),
+                // view buttons
+                Row(
+                  children: [
+                    Expanded(
+                      child: Center(
+                        child: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              axisCount = 1;
+                            });
+                          },
+                          icon: Icon(Icons.list_alt),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Center(
+                        child: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              axisCount = 2;
+                            });
+                          },
+                          icon: Icon(Icons.grid_view),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10,),
+                // post photo and caption
+                Expanded(
+                  child: GridView.builder(
+                      itemCount: items.length,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: axisCount),
+                      itemBuilder: (ctx, index) {
+                        return _listOfPost (items[index]);
+                      }
+                  ),
+                ),
+              ],
+            ),
+          ),
+          isLoading ?
+          Center(
+            child: CircularProgressIndicator(),
+          ): SizedBox.shrink(),
+        ],
       )
     );
   }
