@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_instaclone/model/post_model.dart';
+import 'package:flutter_instaclone/services/data_service.dart';
 class MyFeedPage extends StatefulWidget {
   PageController pageController;
   MyFeedPage ({this.pageController});
@@ -11,20 +12,30 @@ class MyFeedPage extends StatefulWidget {
 }
 
 class _MyFeedPageState extends State<MyFeedPage> {
+  bool isLoading = false;
   List <Post> items = new List ();
-  String post_image1 = "https://i.postimg.cc/Nf5CG97m/photo-1.jpg";
-  String post_image2 = "https://i.postimg.cc/tJSX3ZYF/2.jpg";
-  String post_image3 = "https://i.postimg.cc/K8NyB3wj/3.jpg";
-  String post_image4 = "https://i.postimg.cc/SKJtRXpw/4.jpg";
+
+  void _apiLoadFeeds() {
+    setState(() {
+      isLoading = true;
+    });
+    DataService.loadFeeds().then((value) => {
+      _resLoadFeeds(value),
+    });
+  }
+
+  void _resLoadFeeds(List<Post> posts) {
+    setState(() {
+      items = posts;
+      isLoading = false;
+    });
+  }
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    items.add(Post(postImage: post_image1, caption: "Discover more useful informations "));
-    items.add(Post(postImage: post_image2, caption: "Macbook the best laptop"));
-    items.add(Post(postImage: post_image3, caption: "Work hard, rich big results"));
-    items.add(Post(postImage: post_image4, caption: "High technology our future"));
+    _apiLoadFeeds();
 
   }
 
@@ -39,7 +50,7 @@ class _MyFeedPageState extends State<MyFeedPage> {
             onPressed: () {
               widget.pageController.animateToPage(2, duration: Duration(milliseconds: 200), curve: Curves.easeIn);
             },
-            icon: Icon(Icons.camera_alt_rounded, color: Colors.black,),
+            icon: Icon(Icons.camera_alt_rounded, color: Color.fromRGBO(252, 175, 69, 1),),
           ),
         ],
         elevation: 0,
@@ -79,8 +90,8 @@ class _MyFeedPageState extends State<MyFeedPage> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Username", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black ),),
-                        Text("June 19, 2021", style: TextStyle(fontWeight: FontWeight.normal, color: Colors.black),)
+                        Text(post.fullname, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black ),),
+                        Text(post.date, style: TextStyle(fontWeight: FontWeight.normal, color: Colors.black),)
                       ],
                     ),
                   ],
@@ -96,9 +107,12 @@ class _MyFeedPageState extends State<MyFeedPage> {
           //post image
           //Image.network(post.postImage, fit: BoxFit.cover,),
           CachedNetworkImage(
-            imageUrl: post.postImage,
-            placeholder: (context, url) => CircularProgressIndicator(),
+            imageUrl: post.img_post,
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.width,
+            placeholder: (context, url) => Center(child: CircularProgressIndicator(),),
             errorWidget: (context, url, error) => Icon(Icons.error),
+            fit: BoxFit.cover,
           ),
           // like/share
           Row(
@@ -111,7 +125,7 @@ class _MyFeedPageState extends State<MyFeedPage> {
                       onPressed: (){}
                   ),
                   IconButton(
-                      icon: Icon(FontAwesome.send),
+                      icon: Icon(Icons.share_outlined),
                       onPressed: (){}
                   ),
                 ],

@@ -17,8 +17,8 @@ class _MyLikesPageState extends State<MyLikesPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    items.add(Post(postImage: post_image1, caption: "Discover more great images"));
-    items.add(Post(postImage: post_image2, caption: "City images"));
+    items.add(Post(img_post: post_image1, caption: "Discover more great images"));
+    items.add(Post(img_post: post_image2, caption: "City images"));
   }
 
   @override
@@ -81,7 +81,7 @@ class _MyLikesPageState extends State<MyLikesPage> {
           //post image
           //Image.network(post.postImage, fit: BoxFit.cover,),
           CachedNetworkImage(
-            imageUrl: post.postImage,
+            imageUrl: post.img_post,
             placeholder: (context, url) => CircularProgressIndicator(),
             errorWidget: (context, url, error) => Icon(Icons.error),
           ),

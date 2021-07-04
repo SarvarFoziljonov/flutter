@@ -16,13 +16,10 @@ class MyProfilePage extends StatefulWidget {
 
 class _MyProfilePageState extends State<MyProfilePage> {
   List <Post> items = new List();
-  String post_image1 = "https://i.postimg.cc/Nf5CG97m/photo-1.jpg";
-  String post_image2 = "https://i.postimg.cc/tJSX3ZYF/2.jpg";
-  String post_image3 = "https://i.postimg.cc/K8NyB3wj/3.jpg";
-  String post_image4 = "https://i.postimg.cc/SKJtRXpw/4.jpg";
   int axisCount = 1;
   String fullname = "", email = "", img_url;
   bool isLoading = false;
+  int count_posts = 0;
 //  Beginning functions of choose photo from gallery // camera
   File _image;
 
@@ -114,15 +111,25 @@ class _MyProfilePageState extends State<MyProfilePage> {
     await DataService.updateUser(user);
     _apiLoadUser();
   }
+  void _apiLoadPosts() {
+    DataService.loadPosts().then((value) => {
+      _resLoadPosts(value),
+    });
+  }
+
+  void _resLoadPosts(List<Post> posts) {
+    setState(() {
+      items = posts;
+      count_posts = items.length;
+    });
+  }
+
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    items.add(Post(postImage: post_image1, caption: "Discover more useful informations "));
-    items.add(Post(postImage: post_image2, caption: "Macbook the best laptop"));
-    items.add(Post(postImage: post_image3, caption: "Work hard, rich big results"));
-    items.add(Post(postImage: post_image4, caption: "High technology our future"));
+    _apiLoadPosts();
     _apiLoadUser();
 
   }
@@ -139,7 +146,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
            onPressed: (){
              AuthService.signOutUser(context);
            },
-           icon: Icon(Icons.exit_to_app_outlined, color: Colors.black),
+           icon: Icon(Icons.exit_to_app_outlined, color: Color.fromRGBO(252, 175, 69, 1),),
          ),
        ],
       ),
@@ -212,7 +219,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Text("675", style: TextStyle(color: Colors.black, fontSize: 16),),
+                                    Text(count_posts.toString(), style: TextStyle(color: Colors.black, fontSize: 16),),
                                     Text("POST", style: TextStyle(color: Colors.grey, fontSize: 16)),
                                   ],
                                 ),
@@ -317,8 +324,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
          Expanded(
            child: CachedNetworkImage(
              width: double.infinity,
-             imageUrl: post.postImage,
-             placeholder: (context, url) => CircularProgressIndicator(),
+             imageUrl: post.img_post,
+             placeholder: (context, url) => Center(child: CircularProgressIndicator(),),
              errorWidget: (context, url, error) => Icon(Icons.error),
              fit: BoxFit.cover, 
            ),
