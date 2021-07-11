@@ -19,7 +19,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
   int axisCount = 1;
   String fullname = "", email = "", img_url;
   bool isLoading = false;
-  int count_posts = 0;
+  int count_posts = 0, count_followers = 0, count_following = 0;
 //  Beginning functions of choose photo from gallery // camera
   File _image;
 
@@ -93,6 +93,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
     this.fullname = user.fullname;
     this.email = user.email;
     this.img_url = user.img_url;
+    this.count_followers = user.followers_count;
+    this.count_following = user.following_count;
     });
   }
 
@@ -236,7 +238,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Text("4256", style: TextStyle(color: Colors.black, fontSize: 16),),
+                                    Text(count_followers.toString(), style: TextStyle(color: Colors.black, fontSize: 16),),
                                     Text("FOLLOWERS", style: TextStyle(color: Colors.grey, fontSize: 16)),
                                   ],
                                 ),
@@ -253,7 +255,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Text("850", style: TextStyle(color: Colors.black, fontSize: 16),),
+                                    Text(count_following.toString(), style: TextStyle(color: Colors.black, fontSize: 16),),
                                     Text("FOLLOWING", style: TextStyle(color: Colors.grey, fontSize: 16)),
                                   ],
                                 ),

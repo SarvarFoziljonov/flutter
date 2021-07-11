@@ -2,23 +2,47 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_instaclone/model/post_model.dart';
+import 'package:flutter_instaclone/services/data_service.dart';
 class MyLikesPage extends StatefulWidget {
   @override
   _MyLikesPageState createState() => _MyLikesPageState();
 }
 
 class _MyLikesPageState extends State<MyLikesPage> {
+  bool isLoading = false;
   List <Post> items = new List ();
-  String post_image1 = "https://firebasestorage.googleapis.com/v0/b/koreanguideway.appspot.com/o/develop%2Fpost.png?alt=media&token=f0b1ba56-4bf4-4df2-9f43-6b8665cdc964";
-  String post_image2 = "https://firebasestorage.googleapis.com/v0/b/koreanguideway.appspot.com/o/develop%2Fpost2.png?alt=media&token=ac0c131a-4e9e-40c0-a75a-88e586b28b72";
 
+  void _apiLoadLikes() {
+    setState(() {
+      isLoading = true;
+    });
+    DataService.loadLikes().then((value) => {
+      _resLoadLikes(value),
+    });
+  }
 
+  void _resLoadLikes(List<Post> posts) {
+    setState(() {
+      items = posts;
+      isLoading = false;
+    });
+  }
+
+  void _apiPostUnLike(Post post) {
+    setState(() {
+      isLoading = true;
+      post.liked = false;
+    });
+    DataService.likePost(post, false).then((value) => {
+      _apiLoadLikes(),
+    });
+  }
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    items.add(Post(img_post: post_image1, caption: "Discover more great images"));
-    items.add(Post(img_post: post_image2, caption: "City images"));
+    _apiLoadLikes();
+
   }
 
   @override
@@ -29,11 +53,25 @@ class _MyLikesPageState extends State<MyLikesPage> {
         title: Text("Likes", style: TextStyle(color: Colors.black, fontFamily: 'Billabong', fontSize: 30),),
         elevation: 0,
       ),
-      body: ListView.builder(
-        itemCount: items.length,
-        itemBuilder: (ctx, index) {
-          return _itemsOfPost(items [index]);
-        },
+      body: Stack(
+        children: [
+          items.length > 0?
+          ListView.builder(
+            itemCount: items.length,
+            itemBuilder: (ctx, index){
+              return _itemsOfPost(items[index]);
+            },
+          ): Center(
+            child: Text("No liked posts"),
+          ),
+
+          isLoading
+              ? Center(
+            child: CircularProgressIndicator(),
+          )
+              : SizedBox.shrink(),
+
+        ],
       ),
     );
   }
@@ -64,8 +102,8 @@ class _MyLikesPageState extends State<MyLikesPage> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Username", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black ),),
-                        Text("June 19, 2021", style: TextStyle(fontWeight: FontWeight.normal, color: Colors.black),)
+                        Text(post.fullname, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black ),),
+                        Text(post.date, style: TextStyle(fontWeight: FontWeight.normal, color: Colors.black),)
                       ],
                     ),
                   ],
@@ -92,9 +130,19 @@ class _MyLikesPageState extends State<MyLikesPage> {
               Row(
                 children: [
                   IconButton(
-                      icon: Icon(FontAwesome.heart, color: Colors.red,),
-                      onPressed: (){}
+                    onPressed: () {
+                      if (post.liked) {
+                        _apiPostUnLike(post);
+                      }
+                    },
+                    icon: post.liked
+                        ? Icon(
+                      FontAwesome.heart,
+                      color: Colors.red,
+                    )
+                        : Icon(FontAwesome.heart_o),
                   ),
+
                   IconButton(
                       icon: Icon(FontAwesome.send),
                       onPressed: (){}

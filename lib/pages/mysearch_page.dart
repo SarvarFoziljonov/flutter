@@ -27,6 +27,31 @@ class _MySearchPageState extends State<MySearchPage> {
     });
   }
 
+  void _apiFollowUser(User someone) async{
+    setState(() {
+      isLoading = true;
+    });
+    await DataService.followUser(someone);
+    setState(() {
+      someone.followed = true;
+      isLoading = false;
+    });
+    DataService.storePostsToMyFeed(someone);
+  }
+
+  void _apiUnfollowUser(User someone) async{
+    setState(() {
+      isLoading = true;
+    });
+    await DataService.unfollowUser(someone);
+    setState(() {
+      someone.followed = false;
+      isLoading = false;
+    });
+    DataService.removePostsFromMyFeed(someone);
+  }
+
+
 
 
   @override
@@ -138,20 +163,30 @@ class _MySearchPageState extends State<MySearchPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Container(
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(3),
-                      border: Border.all(
-                        color: Colors.grey,
-                        width: 1,
-                      )
+                GestureDetector(
+                  onTap: (){
+                    if(user.followed){
+                      _apiUnfollowUser(user);
+                    }else{
+                      _apiFollowUser(user);
+                    }
+                  },
+
+                  child: Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(3),
+                        border: Border.all(
+                          color: Colors.grey,
+                          width: 1,
+                        )
+                    ),
+                    width: 100,
+                    height: 30,
+                    child: Center(
+                      child: Text("Follow"),
+                    ),
                   ),
-                  width: 100,
-                  height: 30,
-                  child: Center(
-                    child: Text("Follow"),
-                  ),
-                ),
+                )
               ],
             )
           ),
