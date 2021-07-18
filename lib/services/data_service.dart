@@ -12,9 +12,16 @@ class DataService{
  static String folder_following = "following";
  static String folder_followers = "followers";
 
- static Future storeUser (User user) async {
- user.uid = await Prefs.loadUserId();
- return _firestore.collection(folder_users).document(user.uid).setData(user.toJson());
+ static Future storeUser(User user) async {
+   user.uid = await Prefs.loadUserId();
+   Map<String, String> params = await Utils.deviceParams();
+   print(params.toString());
+
+   user.device_id = params["device_id"];
+   user.device_type = params["device_type"];
+   user.device_token = params["device_token"];
+
+   return _firestore.collection(folder_users).document(user.uid).setData(user.toJson());
  }
 
   static Future <User> loadUser () async {
