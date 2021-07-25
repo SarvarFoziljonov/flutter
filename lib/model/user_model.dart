@@ -12,6 +12,7 @@ class User {
   bool followed = false;
   int followers_count = 0;
   int following_count = 0;
+  int post_count = 0;
 
   User({this.fullname, this.email, this.password});
 

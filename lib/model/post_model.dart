@@ -22,14 +22,16 @@ class Post {
         date = json['date'],
         liked = json['liked'];
 
-  Map<String, dynamic> toJson() => {
-    'uid': uid,
-    'fullname': fullname,
-    'img_user': img_user,
-    'id': id,
-    'img_post': img_post,
-    'caption': caption,
-    'date': date,
-    'liked': liked,
-  };
+  Map<String, dynamic> toJson() =>
+      {
+        'uid': uid,
+        'fullname': fullname,
+        'img_user': img_user,
+        'id': id,
+        'img_post': img_post,
+        'caption': caption,
+        'date': date,
+        'liked': liked,
+      };
+
 }

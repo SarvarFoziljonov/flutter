@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_instaclone/pages/myfeed_page.dart';
@@ -5,6 +6,7 @@ import 'package:flutter_instaclone/pages/mylikes_page.dart';
 import 'package:flutter_instaclone/pages/myprofile_page.dart';
 import 'package:flutter_instaclone/pages/mysearch_page.dart';
 import 'package:flutter_instaclone/pages/myupload_page.dart';
+import 'package:flutter_instaclone/services/utils_service.dart';
 class HomePage extends StatefulWidget {
   static final String id = "home_page";
   @override
@@ -12,12 +14,30 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   PageController _pageController;
   int _currentTap = 0;
+
+  _initNotification() {
+    _firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        print("onMessage: $message");
+        Utils.showLocalNotification(message);
+      },
+      onLaunch: (Map<String, dynamic> message) async {
+        //print("onLaunch: $message");
+      },
+      onResume: (Map<String, dynamic> message) async {
+        //print("onResume: $message");
+      },
+    );
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    _initNotification();
     _pageController = PageController();
   }
 

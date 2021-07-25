@@ -1,9 +1,14 @@
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_instaclone/model/post_model.dart';
 import 'package:flutter_instaclone/services/data_service.dart';
 import 'package:flutter_instaclone/services/utils_service.dart';
+import 'package:flutter_share/flutter_share.dart';
+
+
+
 class MyFeedPage extends StatefulWidget {
   PageController pageController;
   MyFeedPage ({this.pageController});
@@ -31,6 +36,7 @@ class _MyFeedPageState extends State<MyFeedPage> {
       isLoading = false;
     });
   }
+
 
   void _apiPostLike(Post post) async {
     setState(() {
@@ -66,7 +72,6 @@ class _MyFeedPageState extends State<MyFeedPage> {
     }
   }
 
-
   @override
   void initState() {
     // TODO: implement initState
@@ -94,7 +99,7 @@ class _MyFeedPageState extends State<MyFeedPage> {
       body: ListView.builder(
         itemCount: items.length,
         itemBuilder: (ctx, index) {
-          return _itemsOfPost(items [index]);
+          return _itemsOfPost(items[index] );
         },
       ),
     );
@@ -127,6 +132,7 @@ class _MyFeedPageState extends State<MyFeedPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(post.fullname, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black ),),
+
                         Text(post.date, style: TextStyle(fontWeight: FontWeight.normal, color: Colors.black),)
                       ],
                     ),
@@ -176,7 +182,9 @@ class _MyFeedPageState extends State<MyFeedPage> {
     ),
                   IconButton(
                       icon: Icon(Icons.share_outlined),
-                      onPressed: (){}
+                      onPressed: () {
+                        shareButton(link: post.img_post,title: post.caption);
+                      }
                   ),
                 ],
               ),
@@ -202,6 +210,15 @@ class _MyFeedPageState extends State<MyFeedPage> {
       ),
 
 
+    );
+  }
+
+  Future shareButton({dynamic link,String title})async{
+    await FlutterShare.share(
+        title: "send to another platform",
+        text: title,
+        linkUrl:link,
+        chooserTitle: "Where you wanna share"
     );
   }
 }
